@@ -7,6 +7,7 @@ import threading
 # config
 base_url = "http://traffic.sandyspringsga.org/CameraImage.ashx?cameraId={0}"
 camera_list = [28, 30, 31]
+store_path = "C://CV//"
 
 
 # worker function
@@ -28,7 +29,7 @@ def worker(camera_id):
             response = requests.get(base_url.format(camera_id), stream=True)
 
             # save image
-            img_file = 'C://CV/cam{0}/{1}.png'.format(str(camera_id), str(timestamp))
+            img_file = '{0}cam{1}//{2}.png'.format(store_path, camera_id, timestamp)
             with open(img_file, 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
             del response
