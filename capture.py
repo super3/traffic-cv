@@ -1,7 +1,9 @@
+import os
 import time
 import shutil
 import requests
 import threading
+from datetime import datetime
 
 
 # config
@@ -29,7 +31,14 @@ def worker(camera_id):
             response = requests.get(base_url.format(camera_id), stream=True)
 
             # save image
-            img_file = '{0}cam{1}//{2}.png'.format(store_path, camera_id, timestamp)
+            today_date = datetime.now().strftime("%m-%d-%y")
+            base_folder = '{0}cam{1}//'.format(store_path, camera_id)
+            img_folder = '{0}{1}//'.format(base_folder, today_date)
+            img_file = '{0}{1}.png'.format(img_folder, timestamp)
+            if not os.path.exists(base_folder):
+                os.mkdir(base_folder)
+            if not os.path.exists(img_folder):
+                os.mkdir(img_folder)
             with open(img_file, 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
             del response
