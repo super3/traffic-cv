@@ -21,7 +21,7 @@ def worker(cam_id):
 
     try:
         while loop:
-            capture(cam_id, timestamp)
+            timestamp = capture(cam_id, timestamp)
 
     except KeyboardInterrupt:
         loop = False
@@ -58,6 +58,8 @@ def capture(cam_id, timestamp):
 
     # pause a bit
     time.sleep(0.1)
+
+    return timestamp
 
 
 def start_up():
