@@ -1,5 +1,7 @@
 import os
+import cv2
 import time
+import glob
 import shutil
 import requests
 import threading
@@ -8,7 +10,7 @@ from datetime import datetime
 
 # config
 base_url = "http://traffic.sandyspringsga.org/CameraImage.ashx?cameraId={0}"
-camera_list = [28, 30, 31]
+camera_list = [23, 28, 30, 31]
 store_path = "C://CV//"
 
 
@@ -62,12 +64,27 @@ def capture(cam_id, timestamp):
     return timestamp
 
 
+def show_cams(camera_list):
+    dir_path = "C:\\CV\\cam23\\10-06-15\\"
+
+    while True:
+        newest = max(glob.iglob(dir_path+'*.png'), key=os.path.getctime)
+        img = cv2.imread(newest)
+        cv2.imshow('image', img)
+        time.sleep(0.5)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+
 def start_up():
     threads = []
     for camera in camera_list:
         t = threading.Thread(target=worker, args=(camera,))
         threads.append(t)
         t.start()
+
+    show_cams(camera_list)
+
 
 
 if __name__ == "__main__":
