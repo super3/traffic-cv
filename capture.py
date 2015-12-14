@@ -45,7 +45,7 @@ def capture(cam_id, timestamp):
 
     :param cam_id:  Numerical id for a particular camera.
     :param timestamp: For determining delay and file naming.
-    :return:
+    :return: timestamp
     """
     # find delay since last frame
     delay = round(time.time() - timestamp, 3)
