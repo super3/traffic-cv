@@ -8,7 +8,6 @@ import requests
 import threading
 from datetime import datetime
 
-
 # general config
 base_url = "http://traffic.sandyspringsga.org/CameraImage.ashx?cameraId={0}"
 camera_list = [23, 28, 30, 31]
@@ -18,6 +17,24 @@ store_path = "C://CV//"
 # logging config
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
+
+def upload_test(path):
+    import json
+    import metatool
+    from btctxstore import BtcTxStore
+    file_obj = open(path, 'rb')
+    api = BtcTxStore(testnet=True, dryrun=True)
+    sender_key = api.create_key()
+    response = metatool.core.upload(
+        url_base='http://node2.metadisk.org',
+        sender_key=sender_key,
+        btctx_api=api,
+        file=file_obj,
+        file_role='001'
+    )
+    print(response.text)
+    return json.loads(response.text)
 
 
 def worker(cam_id):
@@ -74,6 +91,10 @@ def capture(cam_id, timestamp):
     del response
     logging.info("Saved " + img_file + "\n")
 
+    # upload test
+    print(img_file)
+    upload_test(img_file)
+
     # pause a bit
     time.sleep(0.1)
 
@@ -89,14 +110,13 @@ def start_up():
         threads.append(t)
         t.start()
 
-    show_cams(camera_list)
+    #show_cams(camera_list)
 
 
 def find_cam_path(cam):
     """Find the path for a camera."""
     today_date = datetime.now().strftime("%m-%d-%y")
     return "{0}cam{1}//{2}//".format(store_path, cam, today_date)
-
 
 def show_cams(cam_options):
     """
