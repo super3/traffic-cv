@@ -19,24 +19,6 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-def upload_test(path):
-    import json
-    import metatool
-    from btctxstore import BtcTxStore
-    file_obj = open(path, 'rb')
-    api = BtcTxStore(testnet=True, dryrun=True)
-    sender_key = api.create_key()
-    response = metatool.core.upload(
-        url_base='http://node2.metadisk.org',
-        sender_key=sender_key,
-        btctx_api=api,
-        file=file_obj,
-        file_role='001'
-    )
-    print(response.text)
-    return json.loads(response.text)
-
-
 def worker(cam_id):
     """
     Worker to consume a camera feed.
@@ -91,10 +73,6 @@ def capture(cam_id, timestamp):
     del response
     logging.info("Saved " + img_file + "\n")
 
-    # upload test
-    print(img_file)
-    upload_test(img_file)
-
     # pause a bit
     time.sleep(0.1)
 
@@ -110,40 +88,11 @@ def start_up():
         threads.append(t)
         t.start()
 
-    #show_cams(camera_list)
-
 
 def find_cam_path(cam):
     """Find the path for a camera."""
     today_date = datetime.now().strftime("%m-%d-%y")
     return "{0}cam{1}//{2}//".format(store_path, cam, today_date)
-
-def show_cams(cam_options):
-    """
-    Viewer for current camera.
-
-    :param cam_options: List of cameras to choose from.
-    """
-
-    # select the first camera
-    index = 0
-    cam = cam_options[index]
-    dir_path = find_cam_path(cam)
-
-    while True:
-        newest = max(glob.iglob(dir_path+'*.png'), key=os.path.getctime)
-        img = cv2.imread(newest)
-        cv2.imshow('image', img)
-        time.sleep(0.25)
-
-        if cv2.waitKey(1) == ord('a'):
-            index -= 1
-
-        if index < 0:
-            index = len(cam_options)-1
-
-        cam = cam_options[index]
-        dir_path = find_cam_path(cam)
 
 
 if __name__ == "__main__":
