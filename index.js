@@ -21,10 +21,7 @@ setInterval(async () => {
 		});
 
 		const image = await Jimp.read(res.data);
-
 		image.resize(50, Jimp.AUTO);
-
-		console.log(image.bitmap.data.length);
 
 		io.emit(`image-original-${id}`, res.data);
 		io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));
