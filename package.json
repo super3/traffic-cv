@@ -18,6 +18,7 @@
   "homepage": "https://github.com/super3/traffic-cv#readme",
   "dependencies": {
     "axios": "^0.18.0",
+    "jimp": "^0.2.28",
     "socket.io": "^2.1.1"
   }
 }

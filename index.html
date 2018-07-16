@@ -6,10 +6,25 @@ const socket = io('http://localhost:3052');
 
 socket.on('cameras', cameras => {
 		for(const id of cameras) {
+			const $original = document.createElement("img");
+			document.body.append($original);
+
+			$original.height = 400;
+
 			const $image = document.createElement("img");
 			document.body.append($image);
 
+			$image.height = 400;
+
+			socket.on(`image-original-${id}`, image => {
+				const arrayBufferView = new Uint8Array(image);
+				const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
+
+				$original.src = window.URL.createObjectURL(blob);
+			});
+
 			socket.on(`image-${id}`, image => {
+
 				const arrayBufferView = new Uint8Array(image);
 				const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
 

@@ -1,6 +1,8 @@
 const fs = require('fs');
 const axios = require('axios');
 const io = require('socket.io')(3052);
+const Jimp = require('jimp');
+const util = require('util');
 
 const cameras = [
 	43
@@ -18,6 +20,13 @@ setInterval(async () => {
 			url: `http://traffic.sandyspringsga.gov/CameraImage.ashx?cameraId=${id}`
 		});
 
-		io.emit(`image-${id}`, res.data);
+		const image = await Jimp.read(res.data);
+
+		image.resize(50, Jimp.AUTO);
+
+		console.log(image.bitmap.data.length);
+
+		io.emit(`image-original-${id}`, res.data);
+		io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));
 	}));
 }, 1000 / 5);
