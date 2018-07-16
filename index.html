@@ -1,0 +1,20 @@
+<script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+<img/>
+
+<script>
+const socket = io('http://localhost:3052');
+
+socket.on('cameras', cameras => {
+		for(const id of cameras) {
+			const $image = document.createElement("img");
+			document.body.append($image);
+
+			socket.on(`image-${id}`, image => {
+				const arrayBufferView = new Uint8Array(image);
+				const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
+
+				$image.src = window.URL.createObjectURL(blob);
+			});
+		}
+});
+</script>

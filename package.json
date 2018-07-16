@@ -1,0 +1,23 @@
+{
+  "name": "traffic-cv",
+  "version": "1.0.0",
+  "description": "Toolset for determining physical state from traffic cameras.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/super3/traffic-cv.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/super3/traffic-cv/issues"
+  },
+  "homepage": "https://github.com/super3/traffic-cv#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "socket.io": "^2.1.1"
+  }
+}
