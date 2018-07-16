@@ -59,5 +59,4 @@ docs/_build/
 # PyBuilder
 target/
 
-images
 node_modules
