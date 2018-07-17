@@ -19,6 +19,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "jimp": "^0.2.28",
+    "mz": "^2.7.0",
     "polynet": "git+https://github.com/montyanderson/polynet.git",
     "socket.io": "^2.1.1"
   }

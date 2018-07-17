@@ -11,16 +11,16 @@ const loadImage = require('./lib/loadImage');
 	imagePaths.sort();
 
 	const images = [
-		...imagePaths.splice(0, 17).map(path => ({
-			path,
+		...fs.readdirSync(`${__dirname}/images/green`).map(path => ({
+			path: `green/${path}`,
 			outputs: [ 1, 0, 0 ]
 		})),
-		...imagePaths.slice(0, 21).map(path => ({
+		/*...imagePaths.slice(0, 21).map(path => ({
 			path,
 			outputs: [ 0, 1, 0 ]
-		})),
-		...imagePaths.slice(0, 21).map(path => ({
-			path,
+		})),*/
+		...fs.readdirSync(`${__dirname}/images/red`).map(path => ({
+			path: `red/${path}`,
 			outputs: [ 0, 0, 1 ]
 		}))
 	];
@@ -37,7 +37,7 @@ const loadImage = require('./lib/loadImage');
 	net.f = x => x / (1 + Math.abs(x));
 
 	net.train(trainingSet, {
-		iterations: 50
+		iterations: 1000
 	});
 
 	fs.writeFileSync(`${__dirname}/net.json`, JSON.stringify(net));

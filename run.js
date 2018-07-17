@@ -22,5 +22,6 @@ const loadImage = require('./lib/loadImage');
 		'2': 'red'
 	};
 
+	console.log(output);
 	console.log(`Traffic lights are '${colors[maxIndex]}' with a ${probability.toFixed(2)}% probability.`);
 })();

@@ -5,7 +5,7 @@ const Jimp = require('jimp');
 const util = require('util');
 
 const cameras = [
-	43
+	38
 ];
 
 io.on('connection', socket => {
@@ -21,7 +21,7 @@ setInterval(async () => {
 		});
 
 		const image = await Jimp.read(res.data);
-		image.resize(50, Jimp.AUTO);
+		image.crop(122-8, 94-15, 16, 30);
 
 		io.emit(`image-original-${id}`, res.data);
 		io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));
