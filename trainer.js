@@ -15,10 +15,10 @@ const loadImage = require('./lib/loadImage');
 			path: `green/${path}`,
 			outputs: [ 1, 0, 0 ]
 		})),
-		/*...imagePaths.slice(0, 21).map(path => ({
-			path,
+		...fs.readdirSync(`${__dirname}/images/yellow`).map(path => ({
+			path: `yellow/${path}`,
 			outputs: [ 0, 1, 0 ]
-		})),*/
+		})),
 		...fs.readdirSync(`${__dirname}/images/red`).map(path => ({
 			path: `red/${path}`,
 			outputs: [ 0, 0, 1 ]
@@ -37,7 +37,8 @@ const loadImage = require('./lib/loadImage');
 	net.f = x => x / (1 + Math.abs(x));
 
 	net.train(trainingSet, {
-		iterations: 1000
+		iterations: 10,
+		incr: 0.1
 	});
 
 	fs.writeFileSync(`${__dirname}/net.json`, JSON.stringify(net));

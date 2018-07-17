@@ -12,16 +12,15 @@ const loadImage = require('./lib/loadImage');
 
 	const output = net.update(input);
 
-	const maxIndex = output.indexOf(Math.max(...output));
-
-	const probability = Math.max(...output) / (output[0] + output[1] + output[2]) * 100;
+	const max = Math.max(...output);
+	const maxIndex = output.indexOf(max);
 
 	const colors = {
 		'0': 'green',
-		'1': 'amber',
+		'1': 'yellow',
 		'2': 'red'
 	};
 
 	console.log(output);
-	console.log(`Traffic lights are '${colors[maxIndex]}' with a ${probability.toFixed(2)}% probability.`);
+	console.log(`Traffic lights are '${colors[maxIndex]}' with a ${(max * 100).toFixed(2)}% probability.`);
 })();
