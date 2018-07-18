@@ -19,19 +19,30 @@ function test(directory, highestOutput) {
 	}
 }
 
-describe('Net', () => {
+describe('Training Data', () => {
 	describe('Green', () => {
 		test('green', 0);
-		test('testing/green', 0);
 	});
 
 	describe('Yellow', () => {
 		test('yellow', 1);
-		test('testing/yellow', 1);
 	});
 
 	describe('Red', () => {
 		test('red', 2);
+	});
+});
+
+describe('Testing Data', () => {
+	describe('Green', () => {
+		test('testing/green', 0);
+	});
+
+	describe('Yellow', () => {
+		test('testing/yellow', 1);
+	});
+
+	describe('Red', () => {
 		test('testing/red', 2);
 	});
 });
