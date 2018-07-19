@@ -32,13 +32,13 @@ const loadImage = require('./lib/loadImage');
 		];
 	}));
 
-	const net = new PolyNet(trainingSet[0][0].length, 3, 3);
+	const net = new PolyNet(trainingSet[0][0].length, 6, 3);
 
 	net.f = x => x / (1 + Math.abs(x));
 
 	net.train(trainingSet, {
 		iterations: 20,
-		incr: 0.1
+		incr: 0.05
 	});
 
 	fs.writeFileSync(`${__dirname}/net.json`, JSON.stringify(net));
