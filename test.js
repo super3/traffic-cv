@@ -2,9 +2,8 @@ const assert = require('assert');
 const fs = require('mz/fs');
 const PolyNet = require('polynet');
 
+const net = require('./lib/net');
 const loadImage = require('./lib/loadImage');
-
-const net = Object.assign(new PolyNet(), JSON.parse(fs.readFileSync(`${__dirname}/net.json`, "utf8")));
 
 function test(directory, highestOutput) {
 	const images = fs.readdirSync(`${__dirname}/images/${directory}`);

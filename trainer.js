@@ -37,7 +37,7 @@ const loadImage = require('./lib/loadImage');
 	net.f = x => x / (1 + Math.abs(x));
 
 	net.train(trainingSet, {
-		iterations: 10,
+		iterations: 20,
 		incr: 0.1
 	});
 
