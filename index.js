@@ -36,9 +36,10 @@ setInterval(async () => {
 		};
 
 		const color = colors[output.indexOf(Math.max(...output))];
-		console.log(color);
+
 
 		io.emit(`image-original-${id}`, res.data);
 		io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));
+		io.emit(`color-${id}`, color);
 	}));
 }, 1000 / 2);

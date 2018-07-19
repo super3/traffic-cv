@@ -16,6 +16,9 @@ socket.on('cameras', cameras => {
 
 			$image.height = 400;
 
+			const $color = document.createElement("p");
+			document.body.append($color);
+
 			socket.on(`image-original-${id}`, image => {
 				const arrayBufferView = new Uint8Array(image);
 				const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
@@ -29,6 +32,10 @@ socket.on('cameras', cameras => {
 				const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
 
 				$image.src = window.URL.createObjectURL(blob);
+			});
+
+			socket.on(`color-${id}`, color => {
+				$color.innerHTML = color;
 			});
 		}
 });

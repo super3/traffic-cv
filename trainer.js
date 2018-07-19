@@ -38,7 +38,7 @@ const loadImage = require('./lib/loadImage');
 
 	net.train(trainingSet, {
 		iterations: 10,
-		incr: 0.2
+		incr: 0.1
 	});
 
 	fs.writeFileSync(`${__dirname}/net.json`, JSON.stringify(net));
