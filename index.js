@@ -23,20 +23,19 @@ setInterval(async () => {
 		});
 
 		let image = await Jimp.read(res.data);
-		image = await image.crop(122-8, 94-15, 16, 30);
+		image = await image.crop(122 - 8, 94 - 15, 16, 30);
 
 		const lightBuffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
 
-		const output = net.update([ ...(await Jimp.read(lightBuffer)).bitmap.data ].map(x => x / 256));
+		const output = net.update([...(await Jimp.read(lightBuffer)).bitmap.data].map(x => x / 256));
 
 		const colors = {
-			'0': 'Green',
-			'1': 'Yellow',
-			'2': 'Red'
+			0: 'Green',
+			1: 'Yellow',
+			2: 'Red'
 		};
 
 		const color = colors[output.indexOf(Math.max(...output))];
-
 
 		io.emit(`image-original-${id}`, res.data);
 		io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));

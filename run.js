@@ -12,9 +12,9 @@ const loadImage = require('./lib/loadImage');
 	const maxIndex = output.indexOf(max);
 
 	const colors = {
-		'0': 'green',
-		'1': 'yellow',
-		'2': 'red'
+		0: 'green',
+		1: 'yellow',
+		2: 'red'
 	};
 
 	console.log(output);

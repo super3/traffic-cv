@@ -8,7 +8,7 @@ const loadImage = require('./lib/loadImage');
 function test(directory, highestOutput) {
 	const images = fs.readdirSync(`${__dirname}/images/${directory}`);
 
-	for(const filename of images) {
+	for (const filename of images) {
 		it(`${directory} ${filename}`, async () => {
 			const image = await loadImage(`${directory}/${filename}`);
 			const output = net.update(image);
@@ -20,15 +20,15 @@ function test(directory, highestOutput) {
 
 describe('Training Data', () => {
 	describe('Green', () => {
-		test('green', 0);
+		test('training/green', 0);
 	});
 
 	describe('Yellow', () => {
-		test('yellow', 1);
+		test('training/yellow', 1);
 	});
 
 	describe('Red', () => {
-		test('red', 2);
+		test('training/red', 2);
 	});
 });
 

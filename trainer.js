@@ -6,22 +6,18 @@ const PolyNet = require('polynet');
 const loadImage = require('./lib/loadImage');
 
 (async () => {
-	const imagePaths = fs.readdirSync(`${__dirname}/images/`);
-
-	imagePaths.sort();
-
 	const images = [
-		...fs.readdirSync(`${__dirname}/images/green`).map(path => ({
-			path: `green/${path}`,
-			outputs: [ 1, 0, 0 ]
+		...fs.readdirSync(`${__dirname}/images/traning/green`).map(path => ({
+			path: `training/green/${path}`,
+			outputs: [1, 0, 0]
 		})),
-		...fs.readdirSync(`${__dirname}/images/yellow`).map(path => ({
-			path: `yellow/${path}`,
-			outputs: [ 0, 1, 0 ]
+		...fs.readdirSync(`${__dirname}/images/traning/yellow`).map(path => ({
+			path: `training/yellow/${path}`,
+			outputs: [0, 1, 0]
 		})),
-		...fs.readdirSync(`${__dirname}/images/red`).map(path => ({
-			path: `red/${path}`,
-			outputs: [ 0, 0, 1 ]
+		...fs.readdirSync(`${__dirname}/images/traning/red`).map(path => ({
+			path: `training/red/${path}`,
+			outputs: [0, 0, 1]
 		}))
 	];
 
