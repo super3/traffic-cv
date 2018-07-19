@@ -20,6 +20,7 @@ const loadImage = require('./lib/loadImage');
 			outputs: [0, 0, 1]
 		}))
 	];
+	
 
 	const trainingSet = await Promise.all(images.map(async obj => {
 		return [
