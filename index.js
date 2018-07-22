@@ -22,7 +22,7 @@ async function cropFromCenter(img, x, y, w, h) {
 }
 
 async function imageToInput(img) {
-	const binaryImage = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
+	const binaryImage = await util.promisify(img.getBuffer.bind(img))('image/jpeg');
 	return [...(await Jimp.read(binaryImage)).bitmap.data].map(x => x / 256);
 }
 
@@ -40,21 +40,28 @@ setInterval(async () => {
 			url: `http://traffic.sandyspringsga.gov/CameraImage.ashx?cameraId=${id}`
 		});
 
-		// crop traffic light and pass to neural net
-		image = await cropFromCenter(res.data, 122, 94, 16, 30);
-		const outputs = net.update(await imageToInput(image));
+		async function getTrafficLightState(img, x, y) {
+			// crop traffic light and pass to neural net
+			const image = await cropFromCenter(img, x, y, 16, 30);
+			const outputs = net.update(await imageToInput(image));
 
-		// map traffic light colors to neural net states
-		const colors = {
-			0: 'Green',
-			1: 'Yellow',
-			2: 'Red'
-		};
-		const color = getState(colors, outputs);
+			// map traffic light colors to neural net states
+			const colors = {
+				0: 'Green',
+				1: 'Yellow',
+				2: 'Red'
+			};
 
+			// return traffic light color
+			return getState(colors, outputs);
+		}
+
+		io.emit(`color-${id}`, await getTrafficLightState(res.data, 50, 92) + ' ' + await getTrafficLightState(res.data, 122, 94));
+
+		//image = await cropFromCenter(res.data, 122, 94, 16, 30);
 		// send traffic camera image, cropped light, and color to browser
 		io.emit(`image-original-${id}`, res.data);
-		io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));
-		io.emit(`color-${id}`, color);
+		// io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));
+
 	}));
 }, 1000 / 2);
