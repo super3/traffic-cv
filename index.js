@@ -55,7 +55,7 @@ setInterval(async () => {
 			io.emit(`image-${id}-${lightId}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'))
 
 			// return traffic light color
-			return getState(colors, outputs);
+			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
 		}
 
 		io.emit(`color-${id}`, await getTrafficLightState(res.data, 50, 92, 1) + ' ' + await getTrafficLightState(res.data, 122, 94, 2));
