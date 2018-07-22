@@ -6,37 +6,30 @@ const socket = io('http://localhost:3052');
 
 socket.on('cameras', cameras => {
 		for(const id of cameras) {
-			const $original = document.createElement("img");
-			document.body.append($original);
+			function imageHandler(channel) {
+				const $image = document.createElement("img");
+				document.body.append($image);
+				$image.height = 400;
 
-			$original.height = 400;
+				socket.on(channel, image => {
+					const arrayBufferView = new Uint8Array(image);
+					const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
 
-			const $image = document.createElement("img");
-			document.body.append($image);
+					$image.src = window.URL.createObjectURL(blob);
+				});
+			}
 
-			$image.height = 400;
+			imageHandler(`image-${id}`);
+			imageHandler(`image-${id}-1`);
+			imageHandler(`image-${id}-2`);
 
 			const $color = document.createElement("p");
 			document.body.append($color);
 
-			socket.on(`image-original-${id}`, image => {
-				const arrayBufferView = new Uint8Array(image);
-				const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
-
-				$original.src = window.URL.createObjectURL(blob);
-			});
-
-			socket.on(`image-${id}`, image => {
-
-				const arrayBufferView = new Uint8Array(image);
-				const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
-
-				$image.src = window.URL.createObjectURL(blob);
-			});
-
 			socket.on(`color-${id}`, color => {
 				$color.innerHTML = color;
 			});
+
 		}
 });
 </script>
