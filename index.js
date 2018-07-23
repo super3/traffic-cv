@@ -65,7 +65,9 @@ setInterval(async () => {
 			// send images to browser
 			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
 			io.emit(`image-${id}-${lightId}`, buffer)
-			await fs.writeFile(`images/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
+
+			if(process.argv.includes('--capture'))
+				await fs.writeFile(`images/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
 
 			// return traffic light color
 			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
