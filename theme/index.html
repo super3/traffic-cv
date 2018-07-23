@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
+        <link href="css/stack-interface.css" rel="stylesheet" type="text/css" media="all" />
+        <link href="css/theme.css" rel="stylesheet" type="text/css" media="all" />
+        <link href="css/custom.css" rel="stylesheet" type="text/css" media="all" />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:200,300,400,400i,500,600,700" rel="stylesheet">
+        <script src="../node_modules/socket.io-client/dist/socket.io.js"></script>
+    </head>
+    <body data-smooth-scroll-offset="77">
+        <div class="nav-container"> </div>
+        <div class="main-container">
+            <section>
+                <div class="container">
+                  <div class='images'></div>
+                  <div class='text'></div>
+                    <div class="masonry">
+                        <div class="masonry__container row masonry--active">
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <script src="js/jquery-3.1.1.min.js"></script>
+        <script src="js/parallax.js"></script>
+        <script src="js/isotope.min.js"></script>
+        <script src="js/smooth-scroll.min.js"></script>
+        <script src="js/scripts.js"></script>
+
+        <script>
+          const socket = io('http://localhost:3052');
+
+          let loaded = false;
+
+          socket.on('cameras', cameras => {
+          		if(loaded === true)
+          			location.reload();
+
+          		loaded = true;
+
+          		for(const { id, lights } of cameras) {
+                const template = `
+                  <div class="col-md-4 masonry__item camera-${id}">
+                      <div class="card card-2 text-center">
+                          <div class="card__top"> <span class="label">New</span>
+                              <a href="#"><div class='images'></div></a>
+                          </div>
+                          <div class="card__body">
+                              <h4>Kiln Fired Pottery</h4> <span class="type--fade">Video Tutorial Series</span>
+                              <p><div class='text'></div></p>
+                          </div>
+                          <div class="card__bottom text-center">
+                              <div class="card__action"> <span class="h6 type--uppercase">Explore</span>
+                                  <a href="#"> <i class="material-icons">flip_to_front</i> </a>
+                              </div>
+                              <div class="card__action"> <span class="h6 type--uppercase">Save</span>
+                                  <a href="#"> <i class="material-icons">favorite_border</i> </a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                `;
+
+                document.querySelector(".masonry__container").innerHTML += template;
+                const $item = document.querySelector(`.camera-${id}`);
+
+          			function imageHandler(channel, parent = document.body) {
+          				const $image = document.createElement("img");
+          				parent.append($image);
+          				$image.height = 400;
+
+          				socket.on(channel, image => {
+          					const arrayBufferView = new Uint8Array(image);
+          					const blob = new Blob([ arrayBufferView ], { type: 'image/jpeg' });
+
+          					$image.src = window.URL.createObjectURL(blob);
+          				});
+          			}
+
+          			function textHandler(channel, parent = docuent.body) {
+          				const $text = document.createElement("p");
+          				parent.append($text);
+
+          				socket.on(channel, text => {
+          					$text.innerHTML = text;
+          				});
+          			}
+
+          			const $images = document.querySelector(`.camera-${id} .images`);
+          			const $text = document.querySelector(`.camera-${id} .text`);
+
+          			imageHandler(`image-${id}`, $images);
+
+          			for(const light of lights) {
+          				// imageHandler(`image-${id}-${lights.indexOf(light)}`, $images);
+          				textHandler(`color-${id}-${lights.indexOf(light)}`, $text);
+          			}
+          		}
+          });
+        </script>
+    </body>
+</html>
