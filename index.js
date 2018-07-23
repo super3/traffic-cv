@@ -1,26 +1,49 @@
-const fs = require('fs');
+const fs = require('mz/fs');
 const axios = require('axios');
 const io = require('socket.io')(3052);
 const Jimp = require('jimp');
 const util = require('util');
 
 const net = require('./lib/net');
-
 const cropFromCenter = require('./lib/cropFromCenter');
 const getState = require('./lib/getState');
 const imageToInput = require('./lib/imageToInput');
 
 const cameras = [
-	38
+	{
+		id: 38,
+		lights: [
+			{
+				x: 50,
+				y: 92
+			},
+			{
+				x: 122,
+				y: 94
+			}
+		]
+	},
+	{
+		id: 43,
+		lights: [
+			{
+				x: 181,
+				y: 74
+			},
+			{
+				x: 246,
+				y: 74
+			}
+		]
+	}
 ];
 
 io.on('connection', socket => {
 	socket.emit('cameras', cameras);
 });
 
-
 setInterval(async () => {
-	await Promise.all(cameras.map(async id => {
+	await Promise.all(cameras.map(async ({ id, lights }) => {
 		const res = await axios({
 			method: 'get',
 			responseType: 'arraybuffer',
@@ -40,14 +63,19 @@ setInterval(async () => {
 			};
 
 			// send images to browser
-			io.emit(`image-${id}-${lightId}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'))
+			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
+			io.emit(`image-${id}-${lightId}`, buffer)
+			await fs.writeFile(`images/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
 
 			// return traffic light color
 			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
 		}
 
 		// send colors to browser
-		io.emit(`color-${id}`, await getTrafficLightState(res.data, 50, 92, 1) + ' ' + await getTrafficLightState(res.data, 122, 94, 2));
+		for(const light of lights) {
+			io.emit(`color-${id}-${lights.indexOf(light)}`,
+				await getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
+		}
 
 		// send traffic camera image
 		io.emit(`image-${id}`, res.data);

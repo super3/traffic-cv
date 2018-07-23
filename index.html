@@ -1,14 +1,24 @@
 <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+<div class='images'></div>
+<div class='text'></div>
+
 <img/>
 
 <script>
 const socket = io('http://localhost:3052');
 
+let loaded = false;
+
 socket.on('cameras', cameras => {
-		for(const id of cameras) {
-			function imageHandler(channel) {
+		if(loaded === true)
+			location.reload();
+
+		loaded = true;
+
+		for(const { id, lights } of cameras) {
+			function imageHandler(channel, parent = document.body) {
 				const $image = document.createElement("img");
-				document.body.append($image);
+				parent.append($image);
 				$image.height = 400;
 
 				socket.on(channel, image => {
@@ -19,17 +29,24 @@ socket.on('cameras', cameras => {
 				});
 			}
 
-			imageHandler(`image-${id}`);
-			imageHandler(`image-${id}-1`);
-			imageHandler(`image-${id}-2`);
+			function textHandler(channel, parent = docuent.body) {
+				const $text = document.createElement("p");
+				parent.append($text);
 
-			const $color = document.createElement("p");
-			document.body.append($color);
+				socket.on(channel, text => {
+					$text.innerHTML = text;
+				});
+			}
 
-			socket.on(`color-${id}`, color => {
-				$color.innerHTML = color;
-			});
+			const $images = document.querySelector('.images');
+			const $text = document.querySelector('.text');
 
+			imageHandler(`image-${id}`, $images);
+
+			for(const light of lights) {
+				imageHandler(`image-${id}-${lights.indexOf(light)}`, $images);
+				textHandler(`color-${id}-${lights.indexOf(light)}`, $text);
+			}
 		}
 });
 </script>
