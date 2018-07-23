@@ -6,6 +6,10 @@ const util = require('util');
 
 const net = require('./lib/net');
 
+const cropFromCenter = require('./lib/cropFromCenter');
+const getState = require('./lib/getState');
+const imageToInput = require('./lib/imagetoInput');
+
 const cameras = [
 	38
 ];
@@ -14,23 +18,6 @@ io.on('connection', socket => {
 	socket.emit('cameras', cameras);
 });
 
-async function cropFromCenter(img, x, y, w, h) {
-	if(!(img instanceof Jimp))
-		img = await Jimp.read(img);
-
- 	return await img.crop(x - (w/2), y - (h/2), w, h);
-}
-
-async function imageToInput(img) {
-	const binaryImage = await util.promisify(img.getBuffer.bind(img))('image/jpeg');
-	return [...(await Jimp.read(binaryImage)).bitmap.data].map(x => x / 256);
-}
-
-const indexOfMax = arr => arr.indexOf(Math.max(...arr));
-
-function getState(states, output) {
-	return states[indexOfMax(output)];
-}
 
 setInterval(async () => {
 	await Promise.all(cameras.map(async id => {
