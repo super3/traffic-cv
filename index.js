@@ -8,7 +8,7 @@ const net = require('./lib/net');
 
 const cropFromCenter = require('./lib/cropFromCenter');
 const getState = require('./lib/getState');
-const imageToInput = require('./lib/imagetoInput');
+const imageToInput = require('./lib/imageToInput');
 
 const cameras = [
 	38
