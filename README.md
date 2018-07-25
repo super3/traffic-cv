@@ -8,6 +8,9 @@ Toolset for determining physical state from traffic cameras.
 [![dependencies Status](https://david-dm.org/super3/traffic-cv/status.svg)](https://david-dm.org/super3/traffic-cv)
 [![devDependencies Status](https://david-dm.org/super3/traffic-cv/dev-status.svg)](https://david-dm.org/super3/traffic-cv?type=dev)
 
+### Demo
+![demo.gif](demo.gif)
+
 ### Run Traffic Light Demo
 ```
 node index.js
