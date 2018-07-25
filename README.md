@@ -21,6 +21,13 @@ Then open up ```index.html``` in your browser.
 ```
 node train.js
 ```
+You must have training images in `/images/training/green`, `/images/training/yellow`, and `/images/training/red`.
+
+### Run the Trained Neural Net Through Test Suite
+```
+npm test
+```
+Will test the net against the training and testing data. Make sure to have categorized images in `/images/testing`.
 
 ### Test Neural Net with a Specific Image
 ```
@@ -37,3 +44,4 @@ Traffic lights are 'red' with a 46.76% probability.
 ```
 node capture.js
 ```
+Will store captured images in `/images` directory. You can then put those images in proper state directory in `/images/training` or `/images/testing` directory.
