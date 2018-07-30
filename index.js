@@ -18,7 +18,6 @@ io.on('connection', socket => {
 	socket.emit('cameras', cameras);
 });
 
-
 setInterval(async () => {
 	await Promise.all(cameras.map(async id => {
 		const res = await axios({

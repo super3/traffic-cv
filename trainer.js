@@ -3,11 +3,33 @@ const util = require('util');
 const Jimp = require('jimp');
 
 const PolyNet = (() => {
+	let PolyNet;
+
 	try {
-		return require('../polynet');
+		PolyNet = require('../polynet');
+		console.log('Using local development PolyNet');
 	} catch(error) {
-		return require('polynet');
+		console.log('Using node_modules production PolyNet');
+		PolyNet = require('polynet');
 	}
+
+	return PolyNet;
+})();
+
+const PolyNetNative = (() => {
+	let PolyNetNative;
+
+	try {
+		PolyNetNative = require('../polynet-native');
+	} catch(error) {
+		try {
+			PolyNetNative = require('../native-trainer');
+		} catch(error) {
+			PolyNetNative = require('polynet');
+		}
+	}
+
+	return PolyNetNative;
 })();
 
 const loadImage = require('./lib/loadImage');
@@ -47,11 +69,18 @@ const loadImage = require('./lib/loadImage');
 		incr: 0.05
 	};
 
+	await PolyNetNative.trainNew([ trainingSet[0][0].length, 6, 3 ], trainingSet, {
+		step: 0.1,
+		iterations: 0
+	});
+
+	/*
 	if(typeof net.trainThreaded === 'function') {
 		await net.trainThreaded(trainingSet, trainingConfig);
 	} else {
 		net.train(trainingSet, trainingConfig);
 	}
+	*/
 
 	console.log(`Training took ${Date.now() - startTime}ms.`);
 
