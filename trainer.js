@@ -58,10 +58,6 @@ const loadImage = require('./lib/loadImage');
 		];
 	}));
 
-	const net = new PolyNet(trainingSet[0][0].length, 6, 3);
-
-	net.f = x => x / (1 + Math.abs(x));
-
 	const startTime = Date.now();
 
 	const trainingConfig = {
@@ -69,20 +65,17 @@ const loadImage = require('./lib/loadImage');
 		incr: 0.05
 	};
 
-	await PolyNetNative.trainNew([ trainingSet[0][0].length, 6, 3 ], trainingSet, {
-		step: 0.1,
-		iterations: 0
+	const layers = await PolyNetNative.trainNew([ trainingSet[0][0].length, 6, 3 ], trainingSet, {
+		step: 0.2,
+		iterations: 5
 	});
 
-	/*
-	if(typeof net.trainThreaded === 'function') {
-		await net.trainThreaded(trainingSet, trainingConfig);
-	} else {
-		net.train(trainingSet, trainingConfig);
-	}
-	*/
+	const net = new PolyNet(...layers);
+	net.f = x => x / (1 + Math.abs(x));
+
+	console.log(net.update(trainingSet[0][0]));
 
 	console.log(`Training took ${Date.now() - startTime}ms.`);
 
-	fs.writeFileSync(`${__dirname}/net.json`, JSON.stringify(net));
+	// fs.writeFileSync(`${__dirname}/net.json`, JSON.stringify(net));
 })();
