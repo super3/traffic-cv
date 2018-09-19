@@ -63,3 +63,4 @@ node_modules
 
 images/*.jpeg
 !images/*/*.jpeg
+images/capture/*
