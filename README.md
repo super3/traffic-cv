@@ -42,6 +42,6 @@ Traffic lights are 'red' with a 46.76% probability.
 
 ### Capture Training/Testing Data
 ```
-node capture.js
+node index.js --capture
 ```
-Will store captured images in `/images` directory. You can then put those images in proper state directory in `/images/training` or `/images/testing` directory.
+Will store captured images in `/images/capture` directory. You can then put those images in proper state directory in `/images/training` or `/images/testing` directory.

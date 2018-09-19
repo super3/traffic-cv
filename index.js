@@ -14,12 +14,12 @@ const cameras = [
 		id: 38,
 		lights: [
 			{
-				x: 70,
-				y: 94
+				x: 179,
+				y: 95
 			},
 			{
-				x: 142,
-				y: 95
+				x: 256,
+				y: 99
 			}
 		]
 	},
@@ -27,12 +27,12 @@ const cameras = [
 		id: 43,
 		lights: [
 			{
-				x: 277,
-				y: 81
+				x: 176,
+				y: 62
 			},
 			{
-				x: 322,
-				y: 81
+				x: 218,
+				y: 63
 			}
 		]
 	}
@@ -66,8 +66,9 @@ setInterval(async () => {
 			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
 			io.emit(`image-${id}-${lightId}`, buffer)
 
+			// optional capture command
 			if(process.argv.includes('--capture'))
-				await fs.writeFile(`images/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
+				await fs.writeFile(`images/capture/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
 
 			// return traffic light color
 			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
