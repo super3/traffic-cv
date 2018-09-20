@@ -50,7 +50,12 @@ setInterval(async () => {
 			url: `http://traffic.sandyspringsga.gov/CameraImage.ashx?cameraId=${id}`
 		});
 
+		async function writeCameraData(img, id) {
+			await fs.writeFile(`${__dirname}/images/capture/${id}-${Date.now()}.jpeg`, img);
+		}
+
 		async function getTrafficLightState(img, x, y, lightId) {
+
 			// crop traffic light and pass to neural net
 			const image = await cropFromCenter(img, x, y, 16, 30);
 			const outputs = net.update(await imageToInput(image));
@@ -76,8 +81,12 @@ setInterval(async () => {
 
 		// send colors to browser
 		for(const light of lights) {
-			io.emit(`color-${id}-${lights.indexOf(light)}`,
-				await getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
+			await Promise.all([
+				(async () => {
+					io.emit(`color-${id}-${lights.indexOf(light)}`,	getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
+				})(),
+				writeCameraData(res.data, id)
+			]);
 		}
 
 		// send traffic camera image
