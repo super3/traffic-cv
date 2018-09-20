@@ -20,7 +20,7 @@
     "axios": "^0.18.0",
     "jimp": "^0.3.2",
     "mz": "^2.7.0",
-    "polynet": "git+https://github.com/montyanderson/polynet.git",
+    "polynet": "git+https://github.com/montyanderson/polynet.git#9ed7818fab80f7ce7eef418221aefc28c4797b76",
     "pureimage": "^0.1.6",
     "socket.io": "^2.1.1"
   },
