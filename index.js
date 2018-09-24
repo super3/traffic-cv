@@ -43,7 +43,7 @@ io.on('connection', socket => {
 });
 
 setInterval(async () => {
-	await Promise.all(cameras.map(async ({ id, lights }) => {
+	await Promise.all(cameras.map(async ({id, lights}) => {
 		const res = await axios({
 			method: 'get',
 			responseType: 'arraybuffer',
@@ -51,37 +51,37 @@ setInterval(async () => {
 		});
 
 		async function getTrafficLightState(img, x, y, lightId) {
-			// crop traffic light and pass to neural net
+			// Crop traffic light and pass to neural net
 			const image = await cropFromCenter(img, x, y, 16, 30);
 			const outputs = net.update(await imageToInput(image));
 
-			// map traffic light colors to neural net states
+			// Map traffic light colors to neural net states
 			const colors = {
 				0: 'Green',
 				1: 'Yellow',
 				2: 'Red'
 			};
 
-			// send images to browser
+			// Send images to browser
 			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
-			io.emit(`image-${id}-${lightId}`, buffer)
+			io.emit(`image-${id}-${lightId}`, buffer);
 
-			// optional capture command
-			if(process.argv.includes('--capture'))
+			// Optional capture command
+			if (process.argv.includes('--capture')) {
 				await fs.writeFile(`images/capture/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
+			}
 
-			// return traffic light color
+			// Return traffic light color
 			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
 		}
 
-		// send colors to browser
-		for(const light of lights) {
+		// Send colors to browser
+		for (const light of lights) {
 			io.emit(`color-${id}-${lights.indexOf(light)}`,
 				await getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
 		}
 
-		// send traffic camera image
+		// Send traffic camera image
 		io.emit(`image-${id}`, res.data);
-
 	}));
 }, 1000 / 2);

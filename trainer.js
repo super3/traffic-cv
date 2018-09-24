@@ -5,7 +5,7 @@ const Jimp = require('jimp');
 const PolyNet = (() => {
 	try {
 		return require('../polynet');
-	} catch(error) {
+	} catch (error) {
 		return require('polynet');
 	}
 })();
@@ -28,7 +28,6 @@ const loadImage = require('./lib/loadImage');
 		}))
 	];
 
-
 	const trainingSet = await Promise.all(images.map(async obj => {
 		return [
 			await loadImage(obj.path),
@@ -47,7 +46,7 @@ const loadImage = require('./lib/loadImage');
 		incr: 0.05
 	};
 
-	if(typeof net.trainThreaded === 'function') {
+	if (typeof net.trainThreaded === 'function') {
 		await net.trainThreaded(trainingSet, trainingConfig);
 	} else {
 		net.train(trainingSet, trainingConfig);
