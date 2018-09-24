@@ -51,7 +51,13 @@ setInterval(async () => {
 		});
 
 		async function writeCameraData(img, id) {
-			await fs.writeFile(`${__dirname}/images/capture/${id}-${Date.now()}.jpeg`, img);
+			try {
+				await fs.mkdir(`${__dirname}/images/capture/${id}/`);
+			}
+			catch(e) {
+				// already created
+			}
+			await fs.writeFile(`${__dirname}/images/capture/${id}/${id}-${Date.now()}.jpeg`, img);
 		}
 
 		async function getTrafficLightState(img, x, y, lightId) {
@@ -69,11 +75,18 @@ setInterval(async () => {
 
 			// send images to browser
 			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
-			io.emit(`image-${id}-${lightId}`, buffer)
+			io.emit(`image-${id}-${lightId}`, buffer);
 
 			// optional capture command
-			if(process.argv.includes('--capture'))
-				await fs.writeFile(`images/capture/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
+			if(process.argv.includes('--capture-lights')) {
+				try {
+					await fs.mkdir(`${__dirname}/images/capture/lights/`);
+				}
+				catch(e) {
+					// already created
+				}
+				await fs.writeFile(`${__dirname}/images/capture/lights/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
+			}
 
 			// return traffic light color
 			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
@@ -81,12 +94,11 @@ setInterval(async () => {
 
 		// send colors to browser
 		for(const light of lights) {
-			await Promise.all([
-				(async () => {
-					io.emit(`color-${id}-${lights.indexOf(light)}`,	getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
-				})(),
-				writeCameraData(res.data, id)
-			]);
+			io.emit(`color-${id}-${lights.indexOf(light)}`,
+				await getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
+
+			if(process.argv.includes('--capture-scene'))
+				await writeCameraData(res.data, id)
 		}
 
 		// send traffic camera image
