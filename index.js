@@ -58,22 +58,31 @@ setInterval(async () => {
 
 		const frames = cameraFrames[id];
 
-		async function writeCameraData(img, id) {
+		async function writeCameraData(img, id, jpg) {
 			frames.push(img);
 
-			if(frames.length >= 25)  {
+			if(frames.length >= 50)  {
 				const proc = spawn('ffmpeg', [
 					'-f',
-					'image2',
+					'image2pipe',
+					'-r',
+					'5',
+					'-vcodec',
+					'mjpeg',
 					'-i',
 					'-',
-					`${__dirname}/images/capture/${id}-${Date.now()}.mpg`
+					'-vcodec',
+					'libx264',
+					`${__dirname}/images/capture/${id}-${Date.now()}.mp4`
 				]);
 
-				for(const frame of frames.splice(0, 25)) {
-					proc.stdin.write(frame);
-				}
+				proc.on('error', err => console.log(err));
+				proc.stdout.on('data', data => console.log(data.toString()));
+				proc.stderr.on('data', data => console.log(data.toString()));
 
+				console.log('starting process');
+				console.log(frames.length);
+				proc.stdin.write(Buffer.concat(frames.splice(0, 50)));
 				proc.stdin.end();
 			}
 		}
@@ -95,6 +104,9 @@ setInterval(async () => {
 			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
 			io.emit(`image-${id}-${lightId}`, buffer);
 
+			if(process.argv.includes('--capture-scene'))
+				await writeCameraData(res.data, id, buffer);
+
 			// optional capture command
 			if(process.argv.includes('--capture-lights')) {
 				try {
@@ -114,9 +126,6 @@ setInterval(async () => {
 		for(const light of lights) {
 			io.emit(`color-${id}-${lights.indexOf(light)}`,
 				await getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
-
-			if(process.argv.includes('--capture-scene'))
-				await writeCameraData(res.data, id)
 		}
 
 		// send traffic camera image
