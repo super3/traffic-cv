@@ -8,7 +8,7 @@ const net = require('./lib/net');
 const cropFromCenter = require('./lib/cropFromCenter');
 const getState = require('./lib/getState');
 const imageToInput = require('./lib/imageToInput');
-const execa = require('execa');
+const {spawn} = require('child_process');
 
 const cameras = [
 	{
@@ -59,31 +59,22 @@ setInterval(async () => {
 		const frames = cameraFrames[id];
 
 		async function writeCameraData(img, id) {
-			try {
-				await fs.mkdir(`${__dirname}/images/capture/${id}/`);
-
-
-			}
-			catch(e) {
-				// already created
-			}
-
-			const filename = `${__dirname}/images/capture/${id}/${id}-${Date.now()}.jpeg`;
-
-			await fs.writeFile(filename, img);
-			frames.push(filename);
+			frames.push(img);
 
 			if(frames.length >= 25)  {
-				const filenames = frames.splice(0, 25);
-				console.log(filenames);
-
-				await execa('ffmpeg', [
+				const proc = spawn('ffmpeg', [
 					'-f',
 					'image2',
 					'-i',
-					filenames[0],
+					'-',
 					`${__dirname}/images/capture/${id}-${Date.now()}.mpg`
 				]);
+
+				for(const frame of frames.splice(0, 25)) {
+					proc.stdin.write(frame);
+				}
+
+				proc.stdin.end();
 			}
 		}
 
