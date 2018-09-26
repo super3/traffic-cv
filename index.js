@@ -45,7 +45,8 @@ io.on('connection', socket => {
 
 const cameraFrames = {};
 
-const fps = 3;
+const bufferSeconds = process.env.BUFFER_SECONDS || 30;
+const fps = process.env.FPS || 3;
 
 setInterval(async () => {
 	await Promise.all(cameras.map(async ({ id, lights }) => {
@@ -81,7 +82,7 @@ setInterval(async () => {
 
 			frames.ffmpeg.stdin.write(img);
 
-			if(++frames.counter % (30 * fps) === 0) {
+			if(++frames.counter % (bufferSeconds * fps) === 0) {
 				frames.ffmpeg.stdin.end();
 				frames.ffmpeg = undefined;
 			}
