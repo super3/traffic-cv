@@ -65,6 +65,15 @@ setInterval(async () => {
 
 		async function writeCameraData(img, id) {
 			if(!frames.ffmpeg) {
+				const directory = `${__dirname}/images/capture/${id}`;
+
+				try {
+					await fs.mkdir(directory);
+				}
+				catch(e) {
+					// already created
+				}
+
 				frames.ffmpeg = spawn('ffmpeg', [
 					'-f',
 					'image2pipe',
@@ -76,7 +85,7 @@ setInterval(async () => {
 					'-',
 					'-vcodec',
 					'libx264',
-					`${__dirname}/images/capture/${id}-${Date.now()}.mp4`
+					`${directory}/${id}-${Date.now()}.mp4`
 				]);
 			}
 
