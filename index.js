@@ -79,7 +79,7 @@ setInterval(async () => {
 				]);
 			}
 
-			frames.ffmpeg.write(img);
+			frames.ffmpeg.stdin.write(img);
 
 			if(++frames.counter % 30 * fps) {
 				frames.ffmpeg.stdin.end();
