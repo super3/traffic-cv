@@ -45,6 +45,8 @@ io.on('connection', socket => {
 
 const cameraFrames = {};
 
+const fps = 3;
+
 setInterval(async () => {
 	await Promise.all(cameras.map(async ({ id, lights }) => {
 		const res = await axios({
@@ -54,19 +56,19 @@ setInterval(async () => {
 		});
 
 		if(!(id in cameraFrames))
-			cameraFrames[id] = [];
+			cameraFrames[id] = {
+				counter: 0
+			}
 
 		const frames = cameraFrames[id];
 
-		async function writeCameraData(img, id, jpg) {
-			frames.push(img);
-
-			if(frames.length >= 50)  {
-				const proc = spawn('ffmpeg', [
+		async function writeCameraData(img, id) {
+			if(typeof frames.ffmpeg !== 'object') {
+				frames.ffmpeg = spawn('ffmpeg', [
 					'-f',
 					'image2pipe',
 					'-r',
-					'5',
+					fps,
 					'-vcodec',
 					'mjpeg',
 					'-i',
@@ -75,15 +77,11 @@ setInterval(async () => {
 					'libx264',
 					`${__dirname}/images/capture/${id}-${Date.now()}.mp4`
 				]);
+			}
 
-				proc.on('error', err => console.log(err));
-				proc.stdout.on('data', data => console.log(data.toString()));
-				proc.stderr.on('data', data => console.log(data.toString()));
-
-				console.log('starting process');
-				console.log(frames.length);
-				proc.stdin.write(Buffer.concat(frames.splice(0, 50)));
-				proc.stdin.end();
+			if(++frames.counter % 30 * fps) {
+				frames.ffmpeg.stdin.end();
+				frames.ffmpeg = undefined;
 			}
 		}
 
@@ -132,4 +130,4 @@ setInterval(async () => {
 		io.emit(`image-${id}`, res.data);
 
 	}));
-}, 1000 / 2);
+}, 1000 / 3);
