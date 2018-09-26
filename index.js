@@ -8,6 +8,7 @@ const net = require('./lib/net');
 const cropFromCenter = require('./lib/cropFromCenter');
 const getState = require('./lib/getState');
 const imageToInput = require('./lib/imageToInput');
+const {spawn} = require('child_process');
 
 const cameras = [
 	{
@@ -42,6 +43,11 @@ io.on('connection', socket => {
 	socket.emit('cameras', cameras);
 });
 
+const cameraFrames = {};
+
+const bufferSeconds = process.env.BUFFER_SECONDS || 30;
+const fps = process.env.FPS || 3;
+
 setInterval(async () => {
 	await Promise.all(cameras.map(async ({ id, lights }) => {
 		const res = await axios({
@@ -50,7 +56,49 @@ setInterval(async () => {
 			url: `http://traffic.sandyspringsga.gov/CameraImage.ashx?cameraId=${id}`
 		});
 
+		if(!(id in cameraFrames))
+			cameraFrames[id] = {
+				counter: 0
+			}
+
+		const frames = cameraFrames[id];
+
+		async function writeCameraData(img, id) {
+			if(!frames.ffmpeg) {
+				const directory = `${__dirname}/images/capture/${id}`;
+
+				try {
+					await fs.mkdir(directory);
+				}
+				catch(e) {
+					// already created
+				}
+
+				frames.ffmpeg = spawn('ffmpeg', [
+					'-f',
+					'image2pipe',
+					'-r',
+					fps,
+					'-vcodec',
+					'mjpeg',
+					'-i',
+					'-',
+					'-vcodec',
+					'libx264',
+					`${directory}/${id}-${Date.now()}.mp4`
+				]);
+			}
+
+			frames.ffmpeg.stdin.write(img);
+
+			if(++frames.counter % (bufferSeconds * fps) === 0) {
+				frames.ffmpeg.stdin.end();
+				frames.ffmpeg = undefined;
+			}
+		}
+
 		async function getTrafficLightState(img, x, y, lightId) {
+
 			// crop traffic light and pass to neural net
 			const image = await cropFromCenter(img, x, y, 16, 30);
 			const outputs = net.update(await imageToInput(image));
@@ -64,11 +112,21 @@ setInterval(async () => {
 
 			// send images to browser
 			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
-			io.emit(`image-${id}-${lightId}`, buffer)
+			io.emit(`image-${id}-${lightId}`, buffer);
+
+			if(process.argv.includes('--capture-scene'))
+				await writeCameraData(res.data, id, buffer);
 
 			// optional capture command
-			if(process.argv.includes('--capture'))
-				await fs.writeFile(`images/capture/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
+			if(process.argv.includes('--capture-lights')) {
+				try {
+					await fs.mkdir(`${__dirname}/images/capture/lights/`);
+				}
+				catch(e) {
+					// already created
+				}
+				await fs.writeFile(`${__dirname}/images/capture/lights/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
+			}
 
 			// return traffic light color
 			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
@@ -84,4 +142,4 @@ setInterval(async () => {
 		io.emit(`image-${id}`, res.data);
 
 	}));
-}, 1000 / 2);
+}, 1000 / 3);
