@@ -81,7 +81,7 @@ setInterval(async () => {
 
 			frames.ffmpeg.stdin.write(img);
 
-			if(++frames.counter % 30 * fps) {
+			if(++frames.counter % 30 * fps === 0) {
 				frames.ffmpeg.stdin.end();
 				frames.ffmpeg = undefined;
 			}
