@@ -5,7 +5,7 @@
 <img/>
 
 <script>
-const socket = io('http://localhost:3052');
+const socket = io(`${location.origin}:3052`);
 
 let loaded = false;
 
