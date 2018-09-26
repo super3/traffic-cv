@@ -63,7 +63,7 @@ setInterval(async () => {
 		const frames = cameraFrames[id];
 
 		async function writeCameraData(img, id) {
-			if(typeof frames.ffmpeg !== 'object') {
+			if(!frames.ffmpeg) {
 				frames.ffmpeg = spawn('ffmpeg', [
 					'-f',
 					'image2pipe',
@@ -78,6 +78,8 @@ setInterval(async () => {
 					`${__dirname}/images/capture/${id}-${Date.now()}.mp4`
 				]);
 			}
+
+			frames.ffmpeg.write(img);
 
 			if(++frames.counter % 30 * fps) {
 				frames.ffmpeg.stdin.end();
