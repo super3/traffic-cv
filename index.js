@@ -1,14 +1,13 @@
-const fs = require('mz/fs');
-const axios = require('axios');
-const io = require('socket.io')(3052);
-const Jimp = require('jimp');
 const util = require('util');
+const io = require('socket.io')(3052);
+
+const Camera = require('./lib/Camera');
+const VideoRecorder = require('./lib/VideoRecorder');
+const Cropper = require('./lib/Cropper');
+const NetStreamer = require('./lib/NetStreamer');
+const NetParser = require('./lib/NetParser');
 
 const net = require('./lib/net');
-const cropFromCenter = require('./lib/cropFromCenter');
-const getState = require('./lib/getState');
-const imageToInput = require('./lib/imageToInput');
-const {spawn} = require('child_process');
 
 const cameras = [
 	{
@@ -39,107 +38,36 @@ const cameras = [
 	}
 ];
 
-io.on('connection', socket => {
-	socket.emit('cameras', cameras);
-});
+const fps = 0.5;
 
-const cameraFrames = {};
+for(const { id, lights } of cameras) {
+	const camera = new Camera(id, fps);
 
-const bufferSeconds = process.env.BUFFER_SECONDS || 30;
-const fps = process.env.FPS || 3;
+	const recorder = new VideoRecorder(`${__dirname}/images/capture/${id}`, fps, 1);
+	camera.pipe(recorder);
 
-setInterval(async () => {
-	await Promise.all(cameras.map(async ({ id, lights }) => {
-		const res = await axios({
-			method: 'get',
-			responseType: 'arraybuffer',
-			url: `http://traffic.sandyspringsga.gov/CameraImage.ashx?cameraId=${id}`
+	camera.on('data', data => {
+		io.emit(`image-${id}`, data);
+	});
+
+	for(const light of lights) {
+		const cropper = new Cropper(light.x, light.y, 16, 30);
+		camera.pipe(cropper);
+
+		cropper.on('data', async image => {
+			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
+
+			io.emit(`image-${id}-${light.id}`, buffer);
 		});
 
-		if(!(id in cameraFrames))
-			cameraFrames[id] = {
-				counter: 0
-			}
+		const netStreamer = new NetStreamer(net);
+		cropper.pipe(netStreamer);
 
-		const frames = cameraFrames[id];
+		const netParser = new NetParser();
+		netStreamer.pipe(netParser);
 
-		async function writeCameraData(img, id) {
-			if(!frames.ffmpeg) {
-				const directory = `${__dirname}/images/capture/${id}`;
-
-				try {
-					await fs.mkdir(directory);
-				}
-				catch(e) {
-					// already created
-				}
-
-				frames.ffmpeg = spawn('ffmpeg', [
-					'-f',
-					'image2pipe',
-					'-r',
-					fps,
-					'-vcodec',
-					'mjpeg',
-					'-i',
-					'-',
-					'-vcodec',
-					'libx264',
-					`${directory}/${id}-${Date.now()}.mp4`
-				]);
-			}
-
-			frames.ffmpeg.stdin.write(img);
-
-			if(++frames.counter % (bufferSeconds * fps) === 0) {
-				frames.ffmpeg.stdin.end();
-				frames.ffmpeg = undefined;
-			}
-		}
-
-		async function getTrafficLightState(img, x, y, lightId) {
-
-			// crop traffic light and pass to neural net
-			const image = await cropFromCenter(img, x, y, 16, 30);
-			const outputs = net.update(await imageToInput(image));
-
-			// map traffic light colors to neural net states
-			const colors = {
-				0: 'Green',
-				1: 'Yellow',
-				2: 'Red'
-			};
-
-			// send images to browser
-			const buffer = await util.promisify(image.getBuffer.bind(image))('image/jpeg');
-			io.emit(`image-${id}-${lightId}`, buffer);
-
-			if(process.argv.includes('--capture-scene'))
-				await writeCameraData(res.data, id, buffer);
-
-			// optional capture command
-			if(process.argv.includes('--capture-lights')) {
-				try {
-					await fs.mkdir(`${__dirname}/images/capture/lights/`);
-				}
-				catch(e) {
-					// already created
-				}
-				await fs.writeFile(`${__dirname}/images/capture/lights/${id}-${lightId}-${Date.now()}.jpeg`, buffer);
-			}
-
-			// return traffic light color
-			return getState(colors, outputs) + ' ' + JSON.stringify(outputs.map(x => Math.round(x * 100)));
-		}
-
-		// send colors to browser
-		for(const light of lights) {
-			io.emit(`color-${id}-${lights.indexOf(light)}`,
-				await getTrafficLightState(res.data, light.x, light.y, lights.indexOf(light)));
-		}
-
-		// send traffic camera image
-		io.emit(`image-${id}`, res.data);
-
-	}));
-}, 1000 / 3);
+		netParser.on('data', color => {
+			console.log(color);
+		});
+	}
+}
