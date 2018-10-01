@@ -87,7 +87,7 @@ for(const { id, lights } of cameras) {
 		const image = await Jimp.read(data);
 
 		for(const light of lights) {
-			drawBox(image, light.x - 8, light.y - 15, 16, 30, [0,0,0]);
+					drawBox(image, light.x - 8, light.y - 15, 16, 30, light.color || [ 0, 0, 0 ]);
 		}
 
 		io.emit(`image-${id}`, await util.promisify(image.getBuffer.bind(image))('image/jpeg'));
@@ -110,6 +110,14 @@ for(const { id, lights } of cameras) {
 		netStreamer.pipe(netParser);
 
 		netParser.on('data', color => {
+			const colors = {
+				'Green': [ 0, 255, 0 ],
+				'Red': [ 255, 0, 0 ],
+				'Yellow': [ 255, 255, 0 ]
+			};
+
+			light.color = colors[color];
+
 			io.emit(`color-${id}-${lights.indexOf(light)}`, color);
 		});
 	}
