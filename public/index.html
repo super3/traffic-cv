@@ -5,7 +5,7 @@
 <img/>
 
 <script>
-const socket = io(`${location.origin.length < 'http://'.length ? 'localhost' : location.origin}:3052`);
+const socket = io(`${location.origin.endsWith('://') ? 'http://localhost' : location.origin}:3052`);
 
 let loaded = false;
 
