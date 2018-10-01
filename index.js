@@ -38,6 +38,10 @@ const cameras = [
 	}
 ];
 
+io.on('connection', socket => {
+	socket.emit('cameras', cameras);
+});
+
 const fps = 0.5;
 
 for(const { id, lights } of cameras) {
