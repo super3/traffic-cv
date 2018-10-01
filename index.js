@@ -71,7 +71,7 @@ for(const { id, lights } of cameras) {
 		netStreamer.pipe(netParser);
 
 		netParser.on('data', color => {
-			console.log(color);
+			io.emit(`color-${id}-${lights.indexOf(light)}`, color);
 		});
 	}
 }
