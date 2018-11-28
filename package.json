@@ -18,7 +18,7 @@
   "homepage": "https://github.com/super3/traffic-cv#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "jimp": "0.5.6",
+    "jimp": "0.6.0",
     "mz": "^2.7.0",
     "polynet": "git+https://github.com/montyanderson/polynet.git#bcb1d59c57e0284383e82d654b5251512c93603f",
     "pureimage": "^0.1.6",
