@@ -5,8 +5,6 @@ Toolset for determining physical state from traffic cameras.
 [![Coverage Status](https://coveralls.io/repos/github/ovsoinc/traffic-cv/badge.svg?branch=master)](https://coveralls.io/github/ovsoinc/traffic-cv?branch=master)
 [![License](https://img.shields.io/badge/license-AGPLv3-blue.svg?label=license)](https://github.com/Storj/ovsoinc/traffic-cv/blob/master/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/ovsoinc/traffic-cv.svg)](https://github.com/ovsoinc/traffic-cv/graphs/contributors)
-[![dependencies Status](https://david-dm.org/ovsoinc/traffic-cv/status.svg)](https://david-dm.org/ovsoinc/traffic-cv)
-[![devDependencies Status](https://david-dm.org/ovsoinc/traffic-cv/dev-status.svg)](https://david-dm.org/ovsoinc/traffic-cv?type=dev)
 
 ### Demo
 ![demo.gif](demo.gif)
