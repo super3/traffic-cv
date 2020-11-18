@@ -22,7 +22,7 @@
     "mz": "^2.7.0",
     "polynet": "git+https://github.com/montyanderson/polynet.git#bcb1d59c57e0284383e82d654b5251512c93603f",
     "pureimage": "^0.2.5",
-    "socket.io": "^3.0.1"
+    "socket.io": "^3.0.2"
   },
   "devDependencies": {
     "mocha": "^8.2.1"
