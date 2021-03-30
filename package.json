@@ -21,7 +21,7 @@
     "jimp": "0.16.1",
     "mz": "^2.7.0",
     "polynet": "git+https://github.com/montyanderson/polynet.git#bcb1d59c57e0284383e82d654b5251512c93603f",
-    "pureimage": "^0.2.7",
+    "pureimage": "^0.3.0",
     "socket.io": "^4.0.0"
   },
   "devDependencies": {
